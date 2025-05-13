@@ -9,8 +9,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://dariomesasmarti.com", 
-        "https://www.dariomesasmarti.com"
-    ],  # Solo estos dominios podrán acceder
+        "https://www.dariomesasmarti.com",
+        "http://localhost:4200"
+    ],
     allow_credentials=True,
     allow_methods=["GET", "POST"],  # Especifica solo los métodos que necesitas
     allow_headers=["Content-Type", "X-API-Key"],  # Especifica solo los headers que usas
