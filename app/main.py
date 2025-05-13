@@ -1,0 +1,36 @@
+from fastapi import FastAPI, HTTPException
+from .settings import settings
+
+
+app = FastAPI()
+
+# Test para ver si sigue funcionando
+@app.get("/status")
+async def status():
+    return {"status" : "ok"}
+
+# Endpoint para consultar qué precide el modelo
+@app.get("/predict")
+# Se ha de pasar la imagen en base 64
+async def predict():
+    # Se consulta con el modelo para ver qué número cree que es
+    # Devolver la lista de los números que cree que pueden ser
+    return {""}
+
+
+# Endpoint para añadir una imagen a la predicción del modelo
+@app.get("/add-sample")
+# Se ha de pasar la imagen en base 64, el resultado correcto y la api key
+async def ad_sample():
+    # Se ha de comprobar que la api key es correcta
+    # Se consulta con el modelo para ver qué número cree que es
+    # Devolver la lista de los números que cree que pueden ser
+    return {"status":"ok"}
+
+
+
+@app.get("/")
+async def root(id):
+    if id != settings.api_key:
+        raise HTTPException(401)
+    return {"message" : "Hello world"}
