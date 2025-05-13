@@ -1,8 +1,21 @@
 from fastapi import FastAPI, HTTPException
 from .settings import settings
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://dariomesasmarti.com", 
+        "https://www.dariomesasmarti.com"
+    ],  # Solo estos dominios podrán acceder
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],  # Especifica solo los métodos que necesitas
+    allow_headers=["Content-Type", "X-API-Key"],  # Especifica solo los headers que usas
+)
+
 
 # Test para ver si sigue funcionando
 @app.get("/status")
