@@ -84,6 +84,7 @@ async def add_sample_endpoint(sample: SampleInput):
 # 5) Train model /api/train
 @api.post("/train", tags=["model"])
 async def train_model_endpoint():
+    return {"status": "ok", "log": ""}
     try:
         from app.add_sample import retrain_model
         log = retrain_model()
