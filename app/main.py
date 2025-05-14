@@ -80,6 +80,17 @@ async def add_sample_endpoint(sample: SampleInput):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
+# 5) Train model /api/train
+@api.post("/train", tags=["model"])
+async def train_model_endpoint():
+    try:
+        from app.add_sample import retrain_model
+        log = retrain_model()
+        return {"status": "ok", "log": log}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ─────────────────────────────────────────────
 #  Montar router
 # ─────────────────────────────────────────────

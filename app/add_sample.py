@@ -1,46 +1,48 @@
-import base64
 import os
 import numpy as np
+from tensorflow.keras.models import load_model
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.preprocessing.image import img_to_array, load_img
+from tensorflow.keras.optimizers import Adam
+from sklearn.model_selection import train_test_split
 from pathlib import Path
-from PIL import Image
-from io import BytesIO
-import subprocess
 
-# ─────────────────────────────────────────────
-#  Constantes
-# ─────────────────────────────────────────────
 MODEL_PATH = "model.h5"
-TRAIN_SCRIPT = "app/model.py"
-SAMPLES_DIR = Path("data/new_samples")
+NEW_DATA_DIR = Path("data/new_samples")
+IMG_SIZE = (28, 28)
 
-# Crear carpeta si no existe
-SAMPLES_DIR.mkdir(parents=True, exist_ok=True)
+def load_new_samples():
+    X, y = [], []
 
-def save_sample(b64_img: str, label: int):
-    if not (0 <= label <= 9):
-        raise ValueError("Label must be an integer between 0 and 9")
+    for label_dir in NEW_DATA_DIR.iterdir():
+        if not label_dir.is_dir():
+            continue
+        label = int(label_dir.name)
+        for img_path in label_dir.glob("*.png"):
+            img = load_img(img_path, color_mode="grayscale", target_size=IMG_SIZE)
+            img_array = img_to_array(img) / 255.0  # Normalizar
+            X.append(img_array)
+            y.append(label)
 
-    # Decodificar imagen
-    try:
-        image_data = base64.b64decode(b64_img)
-        img = Image.open(BytesIO(image_data)).convert("L")  # Escala de grises
-        img = img.resize((28, 28))  # Asegúrate que coincide con el input del modelo
-    except Exception:
-        raise ValueError("Invalid image format")
+    X = np.array(X)
+    y = np.array(y)
+    y = to_categorical(y, num_classes=10)
+    return X, y
 
-    # Guardar imagen en carpeta por etiqueta
-    label_dir = SAMPLES_DIR / str(label)
-    label_dir.mkdir(parents=True, exist_ok=True)
-    img_count = len(list(label_dir.glob("*.png")))
-    img_path = label_dir / f"{img_count+1}.png"
-    img.save(img_path)
+def main():
+    if not os.path.exists(MODEL_PATH):
+        raise FileNotFoundError("El modelo no existe. Entrénalo inicialmente primero.")
 
-    return img_path
+    X, y = load_new_samples()
+    if len(X) == 0:
+        raise ValueError("No hay muestras nuevas para reentrenar.")
 
-def retrain_model():
-    """Ejecuta el script de entrenamiento"""
-    try:
-        result = subprocess.run(["python", TRAIN_SCRIPT], check=True, capture_output=True)
-        return result.stdout.decode("utf-8")
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Retraining failed: {e.stderr.decode('utf-8')}")
+    print(f"Entrenando con {len(X)} nuevas muestras...")
+    model = load_model(MODEL_PATH)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
+    model.compile(optimizer=Adam(1e-4), loss="categorical_crossentropy", metrics=["accuracy"])
+    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=5, batch_size=32, verbose=1)
+    model.save(MODEL_PATH)
+    print("Modelo actualizado y guardado.")
+if __name__ == "__main__":
+    main()
