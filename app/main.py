@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from .settings import settings
 from fastapi.middleware.cors import CORSMiddleware
+from app.predict_digit import predict
+
 
 
 
@@ -23,14 +25,14 @@ app.add_middleware(
 async def status():
     return {"status" : "ok"}
 
-# Endpoint para consultar qué precide el modelo
-@app.get("/predict")
-# Se ha de pasar la imagen en base 64
-async def predict():
-    # Se consulta con el modelo para ver qué número cree que es
-    # Devolver la lista de los números que cree que pueden ser
-    return {""}
 
+@app.get("/predict")
+# Endpoint para consultar qué precide el modelo
+async def predict_endpoint(b64: str):
+    try:
+        return predict(b64)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 # Endpoint para añadir una imagen a la predicción del modelo
 @app.post("/add-sample")

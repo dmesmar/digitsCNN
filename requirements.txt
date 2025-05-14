@@ -3,3 +3,6 @@ fastapi[standard]
 pydantic 
 pydantic-settings[dotenv]
 uvicorn[standard]
+tensorflow
+seaborn
+pillow
