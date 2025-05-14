@@ -50,7 +50,7 @@ def _preprocess_image(b64_img: str) -> np.ndarray:
 
     # Abrir con Pillow
     img = Image.open(io.BytesIO(img_bytes)).convert("L")  # 'L' = 8-bit grayscale
-    img = img.resize((28, 28), Image.ANTIALIAS)
+    img = img.resize((28, 28), Image.LANCZOS)
 
     arr = np.asarray(img).astype("float32") / 255.0       # 0-1
 
@@ -72,10 +72,14 @@ def predict(b64_img: str) -> dict:
     """
     arr = _preprocess_image(b64_img)
     probs = _MODEL.predict(arr, verbose=0)[0]
-    pred_class = int(np.argmax(probs))
-    confidence = float(np.max(probs))
+    print(probs)
+    dict_res = {}
 
-    return {"class": pred_class, "confidence": confidence}
+    for i, p in enumerate(probs): 
+        dict_res[i] = float(round(p, 3))           
+        print(f"Número {i}: {p:.4f}")
+
+    return dict_res
 
 # ---------------------------------------------------------------
 # 5. Uso por línea de comandos (opcional)
@@ -96,3 +100,4 @@ if __name__ == "__main__":
 
     result = predict(b64data)
     print(result)
+
