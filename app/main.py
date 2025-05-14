@@ -8,7 +8,7 @@ from app.predict_digit import predict as model_predict
 # ─────────────────────────────────────────────
 # Ruta absoluta a model.h5 (ajústala si está en otro sitio)
 APP_DIR     = Path(__file__).resolve().parent
-MODEL_PATH  = "model.h5"
+MODEL_PATH  = Path("model.h5")
 
 # Importa tu función que hace la predicción
 
