@@ -26,7 +26,7 @@ async def status():
     return {"status" : "ok"}
 
 
-@app.get("/predict")
+@app.post("/predict")
 # Endpoint para consultar qué precide el modelo
 async def predict_endpoint(b64: str):
     try:
