@@ -14,6 +14,8 @@ from tensorflow.keras.callbacks import Callback, ModelCheckpoint
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import to_categorical
 
+
+
 # ================================================================
 # 1. Callback para parar cuando lleguemos al accuracy objetivo
 # ================================================================
@@ -22,13 +24,6 @@ class StopAtValAccuracy(Callback):
         super().__init__()
         self.target_acc = target_acc
 
-    def on_epoch_end(self, epoch, logs=None):
-        logs = logs or {}
-        val_acc = logs.get("val_accuracy")
-        if val_acc is not None and val_acc >= self.target_acc:
-            print(f"\nSe alcanzó {val_acc:.3f} ≥ {self.target_acc:.3f}. "
-                  "Se detiene el entrenamiento.")
-            self.model.stop_training = True
 
 # ================================================================
 # 2. Preparación de datos
@@ -72,8 +67,7 @@ def createModel():
 # ================================================================
 # 4. Entrenamiento
 # ================================================================
-def trainModel(model, X_train, y_train, X_val, y_val,
-               target_acc=0.93, epochs=30):
+def trainModel(model, X_train, y_train, X_val, y_val, epochs=12):
     datagen = ImageDataGenerator(
         rotation_range=15,
         width_shift_range=0.1,
@@ -81,7 +75,7 @@ def trainModel(model, X_train, y_train, X_val, y_val,
         zoom_range=0.1)
     datagen.fit(X_train)
 
-    stop_acc = StopAtValAccuracy(target_acc)
+    # Eliminamos el callback StopAtValAccuracy
     ckpt = ModelCheckpoint('model.h5',
                            monitor='val_accuracy',
                            save_best_only=True,
@@ -90,9 +84,10 @@ def trainModel(model, X_train, y_train, X_val, y_val,
     history = model.fit(datagen.flow(X_train, y_train, batch_size=64),
                         epochs=epochs,
                         validation_data=(X_val, y_val),
-                        callbacks=[stop_acc, ckpt],
+                        callbacks=[ckpt],  # Solo dejamos el checkpoint
                         verbose=1)
     return history
+
 
 # ================================================================
 # 5. Evaluación
@@ -132,8 +127,7 @@ if __name__ == '__main__':
     X_train, X_val, y_train, y_val = prepareData()
 
     model = createModel()
-    history = trainModel(model, X_train, y_train, X_val, y_val,
-                         target_acc=0.93)   # ← Modifica aquí 0.90-0.95
+    history = trainModel(model, X_train, y_train, X_val, y_val)  
     evaluateModel(model, X_val, y_val, history)
 
     print("\nModelo guardado en model.h5")

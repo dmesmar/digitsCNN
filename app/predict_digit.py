@@ -1,4 +1,3 @@
-# app/predict_digit.py
 import os
 import io
 import base64
