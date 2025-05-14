@@ -69,6 +69,8 @@ async def predict_endpoint(b64: str):
 # 4) Add sample /api/add-sample
 @api.post("/add-sample", tags=["model"])
 async def add_sample_endpoint(sample: SampleInput):
+    #TODO
+    return {"status": "ok", "log": ""}
     try:
         saved_path = save_sample(sample.b64, sample.label)
         retrain_output = retrain_model()
@@ -84,6 +86,7 @@ async def add_sample_endpoint(sample: SampleInput):
 # 5) Train model /api/train
 @api.post("/train", tags=["model"])
 async def train_model_endpoint():
+    #TODO
     return {"status": "ok", "log": ""}
     try:
         from app.add_sample import retrain_model
