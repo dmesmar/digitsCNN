@@ -6,9 +6,6 @@ from PIL import Image
 from io import BytesIO
 import subprocess
 
-# ─────────────────────────────────────────────
-#  Constantes
-# ─────────────────────────────────────────────
 MODEL_PATH = "model.h5"
 TRAIN_SCRIPT = "app/model.py"
 SAMPLES_DIR = Path("data/new_samples")
@@ -24,11 +21,10 @@ def save_sample(b64_img: str, label: int):
     try:
         image_data = base64.b64decode(b64_img)
         img = Image.open(BytesIO(image_data)).convert("L")  # Escala de grises
-        img = img.resize((28, 28))  # Asegúrate que coincide con el input del modelo
+        img = img.resize((28, 28)) 
     except Exception:
         raise ValueError("Invalid image format")
 
-    # Guardar imagen en carpeta por etiqueta
     label_dir = SAMPLES_DIR / str(label)
     label_dir.mkdir(parents=True, exist_ok=True)
     img_count = len(list(label_dir.glob("*.png")))

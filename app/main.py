@@ -11,19 +11,12 @@ class SampleInput(BaseModel):
     b64: str
     label: int
 
-# ─────────────────────────────────────────────
-#  Rutas y constantes
-# ─────────────────────────────────────────────
-# Ruta absoluta a model.h5 (ajústala si está en otro sitio)
+
+# Ruta absoluta a model.h5
 APP_DIR     = Path(__file__).resolve().parent
 MODEL_PATH  = Path("model.h5")
 
-# Importa tu función que hace la predicción
 
-
-# ─────────────────────────────────────────────
-#  FastAPI + CORS
-# ─────────────────────────────────────────────
 app = FastAPI()
 
 app.add_middleware(
@@ -38,12 +31,9 @@ app.add_middleware(
     allow_credentials=True,
 )
 
-# ─────────────────────────────────────────────
-#  Router con prefijo /api
-# ─────────────────────────────────────────────
 api = APIRouter(prefix="/api")
 
-# 1) Ping /api/ping   (equivalente a /status)
+# 1) Ping /api/ping 
 @api.get("/ping", tags=["util"])
 async def ping():
     return {"status": "ok"}
@@ -95,7 +85,4 @@ async def train_model_endpoint():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# ─────────────────────────────────────────────
-#  Montar router
-# ─────────────────────────────────────────────
 app.include_router(api)

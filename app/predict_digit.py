@@ -8,15 +8,10 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 
-# ---------------------------------------------------------------
-# 1. Rutas
-# ---------------------------------------------------------------
 MODEL_PATH = "model.h5"
-TRAIN_SCRIPT = "app/model.py"   # tu script de entrenamiento
+TRAIN_SCRIPT = "app/model.py"
 
-# ---------------------------------------------------------------
-# 2. Cargar o entrenar el modelo
-# ---------------------------------------------------------------
+# 1. Cargar o entrenar el modelo
 def _load_or_train():
     """
     Devuelve un modelo Keras. Si model.h5 no existe,
@@ -24,7 +19,6 @@ def _load_or_train():
     """
     if not os.path.exists(MODEL_PATH):
         print("model.h5 no encontrado. Entrenando modelo…")
-        # Ejecutamos el script de entrenamiento (bloqueante)
         subprocess.run([sys.executable, TRAIN_SCRIPT], check=True)
         print("Entrenamiento finalizado.\n")
 
@@ -35,9 +29,7 @@ def _load_or_train():
 
 _MODEL = _load_or_train()
 
-# ---------------------------------------------------------------
-# 3. Preprocesado de la imagen
-# ---------------------------------------------------------------
+#2. Preprocesado de la imagen
 def _preprocess_image(b64_img: str) -> np.ndarray:
     """
     Convierte una cadena base64 a array (1, 28, 28, 1) float32 [0,1].
@@ -53,15 +45,12 @@ def _preprocess_image(b64_img: str) -> np.ndarray:
 
     arr = np.asarray(img).astype("float32") / 255.0       # 0-1
 
-    # Invertir si fondo blanco y dígito negro:
-    arr = 1.0 - arr   # comenta esta línea si ya está en blanco-negro correcto
+    arr = 1.0 - arr  
 
     arr = arr.reshape(1, 28, 28, 1)
     return arr
 
-# ---------------------------------------------------------------
-# 4. Predicción pública
-# ---------------------------------------------------------------
+# 3. Predicción
 def predict(b64_img: str) -> dict:
     """
     b64_img : str
@@ -80,9 +69,6 @@ def predict(b64_img: str) -> dict:
 
     return dict_res
 
-# ---------------------------------------------------------------
-# 5. Uso por línea de comandos (opcional)
-# ---------------------------------------------------------------
 if __name__ == "__main__":
     import argparse, pathlib, base64
 

@@ -16,18 +16,11 @@ from tensorflow.keras.utils import to_categorical
 
 
 
-# ================================================================
-# 1. Callback para parar cuando lleguemos al accuracy objetivo
-# ================================================================
-class StopAtValAccuracy(Callback):
-    def __init__(self, target_acc: float = 0.93):
-        super().__init__()
-        self.target_acc = target_acc
 
 
-# ================================================================
-# 2. Preparación de datos
-# ================================================================
+
+# 1. Preparación de datos
+
 def prepareData(csv_path='app/content/train.csv'):
     data = pd.read_csv(csv_path)
     X = data.iloc[:, 1:].astype("float32").values / 255.0
@@ -37,9 +30,8 @@ def prepareData(csv_path='app/content/train.csv'):
     return train_test_split(X, y, test_size=0.2,
                             random_state=42, stratify=y)
 
-# ================================================================
-# 3. Modelo (más pequeño)
-# ================================================================
+
+# 2. Modelo 
 def createModel():
     model = Sequential([
         Conv2D(16, (3, 3), activation='relu', input_shape=(28, 28, 1)),
@@ -64,9 +56,7 @@ def createModel():
     model.summary()
     return model
 
-# ================================================================
-# 4. Entrenamiento
-# ================================================================
+# 3. Entrenamiento
 def trainModel(model, X_train, y_train, X_val, y_val, epochs=12):
     datagen = ImageDataGenerator(
         rotation_range=15,
@@ -75,7 +65,6 @@ def trainModel(model, X_train, y_train, X_val, y_val, epochs=12):
         zoom_range=0.1)
     datagen.fit(X_train)
 
-    # Eliminamos el callback StopAtValAccuracy
     ckpt = ModelCheckpoint('model.h5',
                            monitor='val_accuracy',
                            save_best_only=True,
@@ -84,14 +73,12 @@ def trainModel(model, X_train, y_train, X_val, y_val, epochs=12):
     history = model.fit(datagen.flow(X_train, y_train, batch_size=64),
                         epochs=epochs,
                         validation_data=(X_val, y_val),
-                        callbacks=[ckpt],  # Solo dejamos el checkpoint
+                        callbacks=[ckpt], 
                         verbose=1)
     return history
 
 
-# ================================================================
-# 5. Evaluación
-# ================================================================
+# 4. Evaluación
 def evaluateModel(model, X_val, y_val, history):
     pass
     val_loss, val_acc = model.evaluate(X_val, y_val, verbose=0)
@@ -117,9 +104,7 @@ def evaluateModel(model, X_val, y_val, history):
 
     print(classification_report(y_true, y_pred))
 
-# ================================================================
-# 6. Main
-# ================================================================
+# 5. Main
 if __name__ == '__main__':
     tf.random.set_seed(42)
     np.random.seed(42)
